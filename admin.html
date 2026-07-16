@@ -167,6 +167,8 @@ tr:hover td{background:var(--paper2)}
   #report-print-area                { display:block !important; }
   /* 分頁設定 */
   @page { margin: 15mm; size: A4; }
+  /* 人格特質類型區塊：列印時文字改為黑色以提高辨識度 */
+  .rpt-type-block, .rpt-type-block * { color:#000 !important; opacity:1 !important; }
 }
 /* Loading overlay */
 .loading-overlay{position:fixed;inset:0;background:rgba(250,249,246,.9);z-index:9998;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px}
@@ -1482,7 +1484,7 @@ function openReport(sheetRow){
         </div>
       </div>
 
-      <div style="background:#e8671a;border-radius:8px;padding:16px 20px;margin-bottom:16px;color:#fff">
+      <div class="rpt-type-block" style="background:#e8671a;border-radius:8px;padding:16px 20px;margin-bottom:16px;color:#fff">
         <div style="font-size:18px;font-weight:500;margin-bottom:4px">${tm.type} <span style="font-size:13px;opacity:.75">${tm.typeEn}</span></div>
         <div style="font-size:13px;opacity:.85;line-height:1.6">${tm.desc}</div>
       </div>
