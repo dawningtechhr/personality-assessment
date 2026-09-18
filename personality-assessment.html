@@ -161,8 +161,8 @@ button{font-family:'Noto Sans TC',sans-serif;cursor:pointer;border:none;border-r
       <div class="intro-card-body">
         <div class="info-grid">
           <div class="info-item"><span class="ii-icon">📝</span><div><p>題目數量</p><strong>90 道題目</strong></div></div>
-          <div class="info-item"><span class="ii-icon">⏱</span><div><p>每題限時</p><strong>15 秒</strong></div></div>
-          <div class="info-item"><span class="ii-icon">⏳</span><div><p>總時限</p><strong>25 分鐘</strong></div></div>
+          <div class="info-item"><span class="ii-icon">⏱</span><div><p>每題限時</p><strong>25 秒</strong></div></div>
+          <div class="info-item"><span class="ii-icon">⏳</span><div><p>總時限</p><strong>35 分鐘</strong></div></div>
           <div class="info-item"><span class="ii-icon">🔍</span><div><p>構面分析</p><strong>14 個維度</strong></div></div>
         </div>
         <div class="notice-box">
@@ -210,7 +210,7 @@ button{font-family:'Noto Sans TC',sans-serif;cursor:pointer;border:none;border-r
             <circle cx="24" cy="24" r="19" fill="none" stroke="#e8e5de" stroke-width="4"/>
             <circle cx="24" cy="24" r="19" fill="none" id="timer-arc" stroke="#e8671a" stroke-width="4" stroke-linecap="round" stroke-dasharray="119" stroke-dashoffset="0" style="transform:rotate(-90deg);transform-origin:50% 50%;transition:stroke-dashoffset .5s"/>
           </svg>
-          <div class="timer-num" id="timer-num">15</div>
+          <div class="timer-num" id="timer-num">25</div>
         </div>
       </div>
     </div>
@@ -362,7 +362,7 @@ const QUESTIONS=[
 // ══════════════════════════════════
 // TEST STATE
 // ══════════════════════════════════
-let testState={qIdx:0,answers:[],totalSec:1500,qSec:15,totalTimer:null,qTimer:null,selected:null,startTime:null,info:{}};
+let testState={qIdx:0,answers:[],totalSec:2100,qSec:25,totalTimer:null,qTimer:null,selected:null,startTime:null,info:{}};
 
 function startTest(){
   const name=document.getElementById('inp-name').value.trim();
@@ -370,7 +370,7 @@ function startTest(){
   const job=document.getElementById('inp-job').value.trim();
   const date=document.getElementById('inp-date').value;
   if(!name||!phone||!job||!date){showToast('請填寫所有必填欄位','error');return}
-  testState={qIdx:0,answers:[],totalSec:1500,qSec:15,totalTimer:null,qTimer:null,selected:null,startTime:Date.now(),info:{name,phone,job,date}};
+  testState={qIdx:0,answers:[],totalSec:2100,qSec:25,totalTimer:null,qTimer:null,selected:null,startTime:Date.now(),info:{name,phone,job,date}};
   document.getElementById('qn-tot').textContent=QUESTIONS.length;
   showPage('pg-quiz');
   startTotalTimer();
@@ -427,8 +427,8 @@ function selectOpt(i,btn){
 
 function startQTimer(){
   clearInterval(testState.qTimer);
-  testState.qSec=15;
-  updateTimerUI(15);
+  testState.qSec=25;
+  updateTimerUI(25);
   testState.qTimer=setInterval(()=>{
     testState.qSec--;
     updateTimerUI(testState.qSec);
@@ -438,7 +438,7 @@ function startQTimer(){
 
 function updateTimerUI(sec){
   document.getElementById('timer-num').textContent=sec;
-  const pct=sec/15;
+  const pct=sec/25;
   const circ=119;
   const offset=circ-(circ*pct);
   const arc=document.getElementById('timer-arc');
