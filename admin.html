@@ -167,8 +167,6 @@ tr:hover td{background:var(--paper2)}
   #report-print-area                { display:block !important; }
   /* 分頁設定 */
   @page { margin: 15mm; size: A4; }
-  /* 人格特質類型區塊：列印時文字改為黑色以提高辨識度 */
-  .rpt-type-block, .rpt-type-block * { color:#000 !important; opacity:1 !important; }
 }
 /* Loading overlay */
 .loading-overlay{position:fixed;inset:0;background:rgba(250,249,246,.9);z-index:9998;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px}
@@ -596,26 +594,11 @@ function sortRecords(field) {
   updateSortHeaders();
 }
 
-function parseTestDateTime(s) {
-  s = String(s || '');
-  var m = s.match(/(\d{4})\/(\d{1,2})\/(\d{1,2})\s*(上午|下午)?\s*(\d{1,2}):(\d{2}):(\d{2})/);
-  if (!m) return 0;
-  var hour = parseInt(m[5], 10);
-  if (m[4] === '下午' && hour < 12) hour += 12;
-  if (m[4] === '上午' && hour === 12) hour = 0;
-  return new Date(+m[1], +m[2] - 1, +m[3], hour, +m[6], +m[7]).getTime();
-}
-
 function getSortedRecords(records) {
   return [...records].sort(function(a, b) {
-    var cmp;
-    if (sortField === 'testDate') {
-      cmp = parseTestDateTime(a.testDate) - parseTestDateTime(b.testDate);
-    } else {
-      var va = String(a[sortField] || '');
-      var vb = String(b[sortField] || '');
-      cmp = va.localeCompare(vb, 'zh-TW');
-    }
+    var va = String(a[sortField] || '');
+    var vb = String(b[sortField] || '');
+    var cmp = va.localeCompare(vb, 'zh-TW');
     return sortAsc ? cmp : -cmp;
   });
 }
@@ -1499,7 +1482,7 @@ function openReport(sheetRow){
         </div>
       </div>
 
-      <div class="rpt-type-block" style="background:#e8671a;border-radius:8px;padding:16px 20px;margin-bottom:16px;color:#fff">
+      <div style="background:#e8671a;border-radius:8px;padding:16px 20px;margin-bottom:16px;color:#fff">
         <div style="font-size:18px;font-weight:500;margin-bottom:4px">${tm.type} <span style="font-size:13px;opacity:.75">${tm.typeEn}</span></div>
         <div style="font-size:13px;opacity:.85;line-height:1.6">${tm.desc}</div>
       </div>
@@ -1805,6 +1788,25 @@ function showToast(msg,type=''){
 })();
 // URL is hardcoded, just update the badge display
 updateConnBadge();
+</script>
+<script>
+/* ── 整合後台（HR 管理後台以 iframe 嵌入）支援：加上 ?embed=1 時略過登入，改由外層傳入登入身分 ── */
+(function(){
+  if(new URLSearchParams(location.search).get('embed')!=='1')return;
+  document.documentElement.classList.add('embed');
+  var st=document.createElement('style');
+  st.textContent='html.embed .sidebar-logo,html.embed .sidebar-footer,html.embed .sidebar-bottom{display:none!important}';
+  document.head.appendChild(st);
+  window.addEventListener('message',async function(e){
+    if(e.source!==window.parent||!e.data||e.data.type!=='dx-admin'||window.__dxIn)return;
+    window.__dxIn=true;
+    currentAdmin=e.data.admin;
+    try{
+      await loadAdminUI(); showScreen('s-admin');
+    }catch(err){window.__dxIn=false;console.error(err);}
+  });
+  parent.postMessage({type:'dx-ready'},'*');
+})();
 </script>
 </body>
 </html>
