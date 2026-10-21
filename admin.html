@@ -398,6 +398,8 @@ let allAdmins=[];
 // ══════════════════════════════════
 // API：fetch GET → 解析 JSONP 文字回應（可跟隨 redirect，支援跨域）
 // ══════════════════════════════════
+/* 輸出到 HTML 前一律跳脫：避免受測者在表單輸入的內容（姓名、職務、問答題…）被瀏覽器當成 HTML／腳本執行 */
+function dxEsc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
 async function api(payload){
   const jsonStr = JSON.stringify(payload);
   const encoded = encodeURIComponent(jsonStr);
@@ -626,13 +628,13 @@ function renderDashTable(){
   if(!recent.length){tb.innerHTML=`<tr><td colspan="7" style="text-align:center;color:var(--ink3);padding:32px">尚無紀錄</td></tr>`;return}
   tb.innerHTML=recent.map(r=>`
     <tr>
-      <td><strong>${r.name}</strong></td>
-      <td>${r.job}</td>
-      <td>${formatDate(r.date)}</td>
-      <td style="font-family:'JetBrains Mono',monospace;font-size:13px">${r.elapsed}</td>
-      <td><span class="tag" style="background:var(--accent-light);color:var(--accent)">${r.mainTrait}</span></td>
-      <td style="font-size:12px;color:var(--ink3)">${r.testDate ? r.testDate : '<span style="color:#bbb">未記錄</span>'}</td>
-      <td><button class="btn-secondary btn-sm" onclick="openReport(${r._sheetRow})">查看報告</button></td>
+      <td><strong>${dxEsc(r.name)}</strong></td>
+      <td>${dxEsc(r.job)}</td>
+      <td>${dxEsc(formatDate(r.date))}</td>
+      <td style="font-family:'JetBrains Mono',monospace;font-size:13px">${dxEsc(r.elapsed)}</td>
+      <td><span class="tag" style="background:var(--accent-light);color:var(--accent)">${dxEsc(r.mainTrait)}</span></td>
+      <td style="font-size:12px;color:var(--ink3)">${r.testDate ? dxEsc(r.testDate) : '<span style="color:#bbb">未記錄</span>'}</td>
+      <td><button class="btn-secondary btn-sm" onclick="openReport(${Number(r._sheetRow)})">查看報告</button></td>
     </tr>`).join('');
 }
 
@@ -645,16 +647,16 @@ function renderRecords(){
   empty.style.display='none';
   tb.innerHTML=filtered.map(r=>`
     <tr>
-      <td><strong>${r.name}</strong></td>
-      <td style="font-family:'JetBrains Mono',monospace;font-size:13px">${r.phone}</td>
-      <td>${r.job}</td><td>${formatDate(r.date)}</td>
-      <td><span class="tag" style="background:var(--accent-light);color:var(--accent)">${r.mainTrait}</span></td>
-      <td>${r.answerRate}</td>
-      <td style="font-size:13px;color:var(--ink3)">${r.elapsed}</td>
-      <td style="font-size:12px;color:var(--ink3);white-space:nowrap">${r.testDate ? r.testDate : '<span style="color:#bbb">未記錄</span>'}</td>
+      <td><strong>${dxEsc(r.name)}</strong></td>
+      <td style="font-family:'JetBrains Mono',monospace;font-size:13px">${dxEsc(r.phone)}</td>
+      <td>${dxEsc(r.job)}</td><td>${dxEsc(formatDate(r.date))}</td>
+      <td><span class="tag" style="background:var(--accent-light);color:var(--accent)">${dxEsc(r.mainTrait)}</span></td>
+      <td>${dxEsc(r.answerRate)}</td>
+      <td style="font-size:13px;color:var(--ink3)">${dxEsc(r.elapsed)}</td>
+      <td style="font-size:12px;color:var(--ink3);white-space:nowrap">${r.testDate ? dxEsc(r.testDate) : '<span style="color:#bbb">未記錄</span>'}</td>
       <td style="white-space:nowrap">
-        <button class="btn-secondary btn-sm" style="margin-right:6px" onclick="openReport(${r._sheetRow})">📄 報告</button>
-        <button class="btn-danger btn-sm" onclick="deleteRecord('${r.id}','${r._sheetRow}')">刪除</button>
+        <button class="btn-secondary btn-sm" style="margin-right:6px" onclick="openReport(${Number(r._sheetRow)})">📄 報告</button>
+        <button class="btn-danger btn-sm" onclick="deleteRecord('${dxEsc(r.id)}','${Number(r._sheetRow)}')">刪除</button>
       </td>
     </tr>`).join('');
 }
@@ -1467,18 +1469,18 @@ function openReport(sheetRow){
 
         <div>
           <div style="font-size:11px;color:#7a7570">人格特質分析報告</div>
-          <div style="font-size:11px;color:#7a7570">${r.testDate}</div>
+          <div style="font-size:11px;color:#7a7570">${dxEsc(r.testDate)}</div>
         </div>
       </div>
 
       <div style="background:#f2f0eb;border-radius:8px;padding:16px;margin-bottom:16px">
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-          <div><div style="font-size:11px;color:#7a7570">姓名</div><div style="font-size:14px;font-weight:500">${r.name}</div></div>
-          <div><div style="font-size:11px;color:#7a7570">聯絡電話</div><div style="font-size:14px;font-weight:500">${r.phone}</div></div>
-          <div><div style="font-size:11px;color:#7a7570">應徵職務</div><div style="font-size:14px;font-weight:500">${r.job}</div></div>
-          <div><div style="font-size:11px;color:#7a7570">面試日期</div><div style="font-size:14px;font-weight:500">${formatDate(r.date)}</div></div>
-          <div><div style="font-size:11px;color:#7a7570">作答題數</div><div style="font-size:14px;font-weight:500">${r.answered} / ${r.total}（${r.answerRate}）</div></div>
-          <div><div style="font-size:11px;color:#7a7570">使用時間</div><div style="font-size:14px;font-weight:500">${r.elapsed}</div></div>
+          <div><div style="font-size:11px;color:#7a7570">姓名</div><div style="font-size:14px;font-weight:500">${dxEsc(r.name)}</div></div>
+          <div><div style="font-size:11px;color:#7a7570">聯絡電話</div><div style="font-size:14px;font-weight:500">${dxEsc(r.phone)}</div></div>
+          <div><div style="font-size:11px;color:#7a7570">應徵職務</div><div style="font-size:14px;font-weight:500">${dxEsc(r.job)}</div></div>
+          <div><div style="font-size:11px;color:#7a7570">面試日期</div><div style="font-size:14px;font-weight:500">${dxEsc(formatDate(r.date))}</div></div>
+          <div><div style="font-size:11px;color:#7a7570">作答題數</div><div style="font-size:14px;font-weight:500">${dxEsc(r.answered)} / ${dxEsc(r.total)}（${dxEsc(r.answerRate)}）</div></div>
+          <div><div style="font-size:11px;color:#7a7570">使用時間</div><div style="font-size:14px;font-weight:500">${dxEsc(r.elapsed)}</div></div>
         </div>
       </div>
 
@@ -1632,10 +1634,10 @@ function renderAdminList(){
   const wrap=document.getElementById('admin-list-wrap');
   wrap.innerHTML=allAdmins.map((a,i)=>`
     <div class="admin-card">
-      <div class="adm-avatar">${a.name.charAt(0)}</div>
+      <div class="adm-avatar">${dxEsc(a.name.charAt(0))}</div>
       <div class="adm-info">
-        <div class="adm-name">${a.name} <span class="adm-role-badge ${a.role==='super'?'role-super':'role-admin'}">${a.role==='super'?'超級管理員':'管理員'}</span></div>
-        <div class="adm-sub">${a.acc}${a.email?' · '+a.email:''}</div>
+        <div class="adm-name">${dxEsc(a.name)} <span class="adm-role-badge ${a.role==='super'?'role-super':'role-admin'}">${a.role==='super'?'超級管理員':'管理員'}</span></div>
+        <div class="adm-sub">${dxEsc(a.acc)}${a.email?' · '+dxEsc(a.email):''}</div>
       </div>
       <div class="adm-actions">
         <button class="btn-secondary btn-sm" onclick="openEditAdminModal(${i})">編輯</button>
@@ -1691,7 +1693,7 @@ async function saveAdmin(){
 
 async function deleteAdmin(idx){
   const a=allAdmins[idx];
-  if(!confirm(`確定要刪除管理員「${a.name}」？`))return;
+  if(!confirm(`確定要刪除管理員「${dxEsc(a.name)}」？`))return;
   setLoading(true,'刪除中…');
   try{
     await api({action:'deleteAdmin',idx:a._sheetRow});
